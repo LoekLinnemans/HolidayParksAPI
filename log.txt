@@ -1,0 +1,6 @@
+2024/06/03 11:33:48 Log output set to file
+2024/06/03 11:42:58 Log output set to file
+2024/06/03 11:45:08 Log output set to file
+2024/06/03 11:46:40 Error inserting reservation: Error 1292 (22007): Incorrect date value: '06-04' for column 'dateOfDeparture' at row 1
+2024/06/03 11:49:52 Log output set to file
+2024/06/03 11:51:45 Error deleting reservation: Error 1054 (42S22): Unknown column 'id' in 'where clause'

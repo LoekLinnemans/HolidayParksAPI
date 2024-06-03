@@ -4,10 +4,27 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
+
+var db *sql.DB
+
+func initDatabase() {
+	var err error
+	dsn := "loek:****.@tcp(127.0.0.1:3306)/holidayparksdb"
+	db, err = sql.Open("mysql", dsn)
+	if err != nil {
+		log.Printf("Error connecting to database: %v", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Printf("Error when trying to ping datbase: %v", err)
+	}
+}
 
 type reservation struct {
 	ID              int    `json:"reservering_id"`
@@ -19,23 +36,16 @@ type reservation struct {
 	DateOfArrival   string `json:"dateOfArrival" binding:"required"`
 }
 
-var db *sql.DB
-
-func initDatabase() {
-	var err error
-	dsn := "loek:Flint2013.@tcp(127.0.0.1:3306)/holidayparksdb"
-	db, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func main() {
+	logFile, err := os.OpenFile("log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("Error when opening log.txt: %v", err)
+	}
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
+	log.Printf("Log output set to file")
+
 	initDatabase()
 	defer db.Close()
 
@@ -56,11 +66,11 @@ func checkLicensePlate(c *gin.Context) {
 	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE licensePlate = ?)", licensePlate).Scan(&exists)
 	if err != nil {
 		log.Printf("Error checking license plate: %v", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error checking license plate"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error checking license plate"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"exists": exists})
+	c.JSON(http.StatusOK, gin.H{"exists": exists})
 }
 
 func createReservation(c *gin.Context) {
@@ -68,7 +78,17 @@ func createReservation(c *gin.Context) {
 
 	if err := c.BindJSON(&newReservation); err != nil {
 		log.Printf("Error binding JSON: %v", err)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON or missing fields"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON or missing fields"})
+		return
+	}
+	exists, err := reservationExists(newReservation.LicensePlate)
+	if err != nil {
+		log.Printf("Error checking reservation existence: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error checking reservation existence"})
+		return
+	}
+	if exists {
+		c.JSON(http.StatusConflict, gin.H{"message": "Reservation already exists"})
 		return
 	}
 
@@ -80,19 +100,28 @@ func createReservation(c *gin.Context) {
 	result, err := db.Exec(insertQuery, newReservation.FirstName, newReservation.LastName, newReservation.PhoneNumber, newReservation.LicensePlate, newReservation.DateOfDeparture, newReservation.DateOfArrival)
 	if err != nil {
 		log.Printf("Error inserting reservation: %v", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting reservation"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error inserting reservation"})
 		return
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("Error getting last insert ID: %v", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error getting last insert ID"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error getting last insert ID"})
 		return
 	}
 
 	newReservation.ID = int(id)
-	c.IndentedJSON(http.StatusCreated, newReservation)
+	c.JSON(http.StatusCreated, newReservation)
+}
+
+func reservationExists(licensePlate string) (bool, error) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE licensePlate = ?)", licensePlate).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }
 
 func updateReservation(c *gin.Context) {
@@ -101,7 +130,7 @@ func updateReservation(c *gin.Context) {
 
 	if err := c.BindJSON(&updatedReservation); err != nil {
 		log.Printf("Error binding JSON: %v", err)
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON or missing fields"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON or missing fields"})
 		return
 	}
 
@@ -114,11 +143,11 @@ func updateReservation(c *gin.Context) {
 	_, err := db.Exec(updateQuery, updatedReservation.FirstName, updatedReservation.LastName, updatedReservation.PhoneNumber, updatedReservation.LicensePlate, updatedReservation.DateOfDeparture, updatedReservation.DateOfArrival, id)
 	if err != nil {
 		log.Printf("Error updating reservation: %v", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error updating reservation"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating reservation"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, updatedReservation)
+	c.JSON(http.StatusOK, updatedReservation)
 }
 
 func deleteReservation(c *gin.Context) {
@@ -128,9 +157,9 @@ func deleteReservation(c *gin.Context) {
 	_, err := db.Exec(deleteQuery, id)
 	if err != nil {
 		log.Printf("Error deleting reservation: %v", err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error deleting reservation"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting reservation"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "reservation deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "reservation deleted"})
 }
