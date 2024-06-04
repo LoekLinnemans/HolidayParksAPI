@@ -4,3 +4,24 @@
 2024/06/03 11:46:40 Error inserting reservation: Error 1292 (22007): Incorrect date value: '06-04' for column 'dateOfDeparture' at row 1
 2024/06/03 11:49:52 Log output set to file
 2024/06/03 11:51:45 Error deleting reservation: Error 1054 (42S22): Unknown column 'id' in 'where clause'
+2024/06/04 13:01:12 Log output set to file
+2024/06/04 13:01:12 Error reading config file: open config.txt: The system cannot find the file specified.
+2024/06/04 13:06:38 Log output set to file
+2024/06/04 13:06:38 Error when opening file: open config.txt: The system cannot find the file specified.
+2024/06/04 13:06:38 Error reading config file: open config.txt: The system cannot find the file specified.
+2024/06/04 13:06:38 Error when trying to ping datbase: dial tcp :0: connectex: The requested address is not valid in its context.
+2024/06/04 13:07:23 Error deleting reservation: dial tcp :0: connectex: The requested address is not valid in its context.
+2024/06/04 13:07:35 Error checking license plate: dial tcp :0: connectex: The requested address is not valid in its context.
+2024/06/04 13:12:27 Log output set to file
+2024/06/04 13:12:27 Error when opening file: open config.txt: The system cannot find the file specified.
+2024/06/04 13:13:28 Log output set to file
+2024/06/04 13:13:28 Error when trying to ping datbase: Error 1045 (28000): Access denied for user 'loek'@'localhost' (using password: YES)
+2024/06/04 13:15:59 Log output set to file
+2024/06/04 13:15:59 Error when trying to ping datbase: Error 1045 (28000): Access denied for user 'loek'@'localhost' (using password: YES)
+2024/06/04 13:21:08 Log output set to file
+2024/06/04 13:37:44 Log output set to file
+2024/06/04 13:38:00 Error deleting reservation: Error 1054 (42S22): Unknown column 'Reservation_id' in 'where clause'
+2024/06/04 13:39:14 Log output set to file
+2024/06/04 13:39:16 Error deleting reservation: Error 1054 (42S22): Unknown column 'reservation_id' in 'where clause'
+2024/06/04 13:40:35 Log output set to file
+2024/06/04 14:15:15 Error binding JSON: EOF

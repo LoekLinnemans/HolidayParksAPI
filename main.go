@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -12,22 +14,52 @@ import (
 
 var db *sql.DB
 
+func readConfig(filename string) (map[string]string, error) {
+	config := make(map[string]string)
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("Error when opening file: %v", err)
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			config[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error when scanning file: %v", err)
+		return nil, err
+	}
+
+	return config, nil
+}
+
 func initDatabase() {
 	var err error
-	dsn := "loek:****.@tcp(127.0.0.1:3306)/holidayparksdb"
+	config, err := readConfig("config.txt")
+	if err != nil {
+		log.Fatalf("Error reading config file: %v", err)
+	}
+	dsn := config["username"] + ":" + config["password"] + "@" + config["connectionmethod"] + "(" + config["ip"] + ":" + config["port"] + ")/" + config["databaseName"]
 	db, err = sql.Open("mysql", dsn)
 	if err != nil {
-		log.Printf("Error connecting to database: %v", err)
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Printf("Error when trying to ping datbase: %v", err)
+		log.Fatalf("Error when trying to ping datbase: %v", err)
 	}
 }
 
 type reservation struct {
-	ID              int    `json:"reservering_id"`
+	Reservation_id  int    `json:"reservation_id"`
 	FirstName       string `json:"firstName" binding:"required"`
 	LastName        string `json:"lastName" binding:"required"`
 	PhoneNumber     string `json:"phoneNumber" binding:"required"`
@@ -53,8 +85,8 @@ func main() {
 
 	router.GET("/reservations/licensePlate/:licensePlate", checkLicensePlate)
 	router.POST("/reservation", createReservation)
-	router.PATCH("/reservations/:id", updateReservation)
-	router.DELETE("/reservations/:id", deleteReservation)
+	router.PATCH("/reservations/:reservation_id", updateReservation)
+	router.DELETE("/reservations/:reservation_id", deleteReservation)
 
 	router.Run("localhost:8080")
 }
@@ -111,7 +143,7 @@ func createReservation(c *gin.Context) {
 		return
 	}
 
-	newReservation.ID = int(id)
+	newReservation.Reservation_id = int(id)
 	c.JSON(http.StatusCreated, newReservation)
 }
 
@@ -125,7 +157,7 @@ func reservationExists(licensePlate string) (bool, error) {
 }
 
 func updateReservation(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("reservation_id")
 	var updatedReservation reservation
 
 	if err := c.BindJSON(&updatedReservation); err != nil {
@@ -137,7 +169,7 @@ func updateReservation(c *gin.Context) {
 	updateQuery := `
 	UPDATE reservations
 	SET firstName = ?, lastName = ?, phoneNumber = ?, licensePlate = ?, dateOfDeparture = ?, dateOfArrival = ?
-	WHERE id = ?
+	WHERE reservation_id = ?
 	`
 
 	_, err := db.Exec(updateQuery, updatedReservation.FirstName, updatedReservation.LastName, updatedReservation.PhoneNumber, updatedReservation.LicensePlate, updatedReservation.DateOfDeparture, updatedReservation.DateOfArrival, id)
@@ -151,9 +183,9 @@ func updateReservation(c *gin.Context) {
 }
 
 func deleteReservation(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("reservation_id")
 
-	deleteQuery := "DELETE FROM reservations WHERE id = ?"
+	deleteQuery := "DELETE FROM reservations WHERE reservation_id = ?"
 	_, err := db.Exec(deleteQuery, id)
 	if err != nil {
 		log.Printf("Error deleting reservation: %v", err)
