@@ -1,12 +1,14 @@
 # HolidayParksAPI
 rest api for HolidayParks 
 
+to change database information and password go to config.txt
 
 router.GET/reservations/licensePlate/:licensePlate"
 this will return a true or false bool. it is used to check if a licensePlate is in the database or not
 
 router.POST"/reservation"
 this is used to creat a reservation
+json format
 { 
     "firstName": "your_firstName",
     "lastName": "your_lastName",
@@ -18,6 +20,7 @@ this is used to creat a reservation
 
 router.PATCH"/reservations/:reservation_id"
 this is used to change a reservation.
+json format
 { 
     "firstName": "your_firstName",
     "lastName": "your_lastName",
