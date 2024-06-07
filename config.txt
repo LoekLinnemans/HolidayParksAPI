@@ -1,5 +1,5 @@
-username:loek
-password:7KmNlp.s
+username:
+password:
 connectionmethod:tcp
 ip:127.0.0.1
 port:3306
