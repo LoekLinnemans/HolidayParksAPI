@@ -16,6 +16,9 @@ COPY . .
 # Build the Go application
 RUN go build -o main .
 
+# Create an empty log.txt file
+RUN touch log.txt
+
 # Final stage
 FROM alpine:latest
 
@@ -24,6 +27,10 @@ WORKDIR /app
 
 # Copy the built application from the build stage
 COPY --from=build /app/main .
+COPY --from=build /app/log.txt .
+
+# Ensure log.txt is writable by the application
+RUN chmod 666 log.txt
 
 # Expose the port the app runs on
 EXPOSE 8080
