@@ -13,13 +13,13 @@ import (
 var db *sql.DB
 
 func initDatabase() {
-	dbServername := os.Getenv("DB_SERVERNAME")
+	DbServername := os.Getenv("DB_SERVERNAME")
 	dbUsername := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 	dbPort := os.Getenv("DB_PORT")
 
-	dsn := dbUsername + ":" + dbPassword + "@tcp(" + dbServername + ":" + dbPort + ")/" + dbName
+	dsn := dbUsername + ":" + dbPassword + "@tcp(" + DbServername + ":" + dbPort + ")/" + dbName
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -68,12 +68,12 @@ func main() {
 	router.PATCH("/reservations/:reservation_id", updateReservation)
 	router.DELETE("/reservations/:reservation_id", deleteReservation)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "8080"
 	}
 
-	router.Run(":" + port)
+	router.Run(":" + dbPort)
 }
 
 func checkLicensePlate(c *gin.Context) {
