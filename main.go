@@ -48,14 +48,8 @@ type reservation struct {
 }
 
 func main() {
-	logFile, err := os.OpenFile("log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Printf("Error when opening log.txt: %v", err)
-	}
-	defer logFile.Close()
-
-	log.SetOutput(logFile)
-	log.Printf("Log output set to file")
+	log.SetOutput(os.Stdout)
+	log.Printf("Log output set to stdout")
 
 	initDatabase()
 
