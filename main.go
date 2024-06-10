@@ -13,11 +13,11 @@ import (
 var db *sql.DB
 
 func initDatabase() {
-	DbServername := os.Getenv("DB_SERVERNAME")
-	dbUsername := os.Getenv("DB_USERNAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbPort := os.Getenv("DB_PORT")
+	DbServername := "holidayparksmdb.mysql.database.azure.com" //os.Getenv("DB_SERVERNAME")
+	dbUsername := "dbadmin"                                    //os.Getenv("DB_USERNAME")
+	dbPassword := "7KmNlp.s"                                   //os.Getenv("DB_PASSWORD")
+	dbName := "holidayparks"                                   //os.Getenv("DB_NAME")
+	dbPort := "3306"                                           //os.Getenv("DB_PORT")
 
 	if DbServername == "" || dbUsername == "" || dbPassword == "" || dbName == "" || dbPort == "" {
 		log.Fatal("One or more environment variables are not set correctly")
@@ -25,11 +25,11 @@ func initDatabase() {
 
 	dsn := dbUsername + ":" + dbPassword + "@tcp(" + DbServername + ":" + dbPort + ")/" + dbName
 
-	db, err := sql.Open("mysql", dsn)
+	var err error
+	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
-	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {

@@ -49,3 +49,6 @@
 2024/06/10 12:04:45 Log output set to file
 2024/06/10 12:04:46 Error setting timezone: Error 1298 (HY000): Unknown or incorrect time zone: 'Europe/Amsterdam'
 2024/06/10 12:23:58 Log output set to file
+2024/06/10 13:07:19 Log output set to file
+2024/06/10 13:07:19 One or more environment variables are not set correctly
+2024/06/10 13:29:36 Log output set to file
