@@ -88,7 +88,7 @@ func main() {
 	router.PATCH("/reservations/:reservation_id", updateReservation)
 	router.DELETE("/reservations/:reservation_id", deleteReservation)
 
-	router.Run("localhost:8080")
+	router.Run(":8080")
 }
 
 func checkLicensePlate(c *gin.Context) {
