@@ -25,3 +25,8 @@
 2024/06/04 13:39:16 Error deleting reservation: Error 1054 (42S22): Unknown column 'reservation_id' in 'where clause'
 2024/06/04 13:40:35 Log output set to file
 2024/06/04 14:15:15 Error binding JSON: EOF
+2024/06/07 15:21:43 Log output set to file
+2024/06/07 15:21:43 Error when trying to ping datbase: Error 3159 (HY000): Connections using insecure transport are prohibited while --require_secure_transport=ON.
+2024/06/07 15:24:47 Log output set to file
+2024/06/10 09:24:02 Log output set to file
+2024/06/10 09:24:02 Error setting timezone: dial tcp :0: connectex: The requested address is not valid in its context.

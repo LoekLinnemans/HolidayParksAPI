@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -14,47 +12,29 @@ import (
 
 var db *sql.DB
 
-func readConfig(filename string) (map[string]string, error) {
-	config := make(map[string]string)
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatalf("Error when opening file: %v", err)
-		return nil, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) == 2 {
-			config[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error when scanning file: %v", err)
-		return nil, err
-	}
-
-	return config, nil
-}
-
 func initDatabase() {
-	var err error
-	config, err := readConfig("config.txt")
-	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
-	}
-	dsn := config["username"] + ":" + config["password"] + "@" + config["connectionmethod"] + "(" + config["ip"] + ":" + config["port"] + ")/" + config["databaseName"]
-	db, err = sql.Open("mysql", dsn)
+	dbServername := os.Getenv("DB_SERVERNAME")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
+
+	dsn := dbUsername + ":" + dbPassword + "@tcp(" + dbServername + ":" + dbPort + ")/" + dbName
+
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("SET time_zone = 'Europe/Amsterdam'")
+	if err != nil {
+		log.Fatalf("Error setting timezone: %v", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error when trying to ping datbase: %v", err)
+		log.Fatalf("Error when trying to ping database: %v", err)
 	}
 }
 
@@ -88,7 +68,12 @@ func main() {
 	router.PATCH("/reservations/:reservation_id", updateReservation)
 	router.DELETE("/reservations/:reservation_id", deleteReservation)
 
-	router.Run("localhost:8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	router.Run(":" + port)
 }
 
 func checkLicensePlate(c *gin.Context) {
