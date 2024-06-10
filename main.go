@@ -19,6 +19,10 @@ func initDatabase() {
 	dbName := os.Getenv("DB_NAME")
 	dbPort := os.Getenv("DB_PORT")
 
+	if DbServername == "" || dbUsername == "" || dbPassword == "" || dbName == "" || dbPort == "" {
+		log.Fatal("One or more environment variables are not set correctly")
+	}
+
 	dsn := dbUsername + ":" + dbPassword + "@tcp(" + DbServername + ":" + dbPort + ")/" + dbName
 
 	db, err := sql.Open("mysql", dsn)
@@ -26,11 +30,6 @@ func initDatabase() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 	defer db.Close()
-
-	_, err = db.Exec("SET time_zone = 'Europe/Amsterdam'")
-	if err != nil {
-		log.Fatalf("Error setting timezone: %v", err)
-	}
 
 	err = db.Ping()
 	if err != nil {
@@ -59,7 +58,6 @@ func main() {
 	log.Printf("Log output set to file")
 
 	initDatabase()
-	defer db.Close()
 
 	router := gin.Default()
 
@@ -68,12 +66,8 @@ func main() {
 	router.PATCH("/reservations/:reservation_id", updateReservation)
 	router.DELETE("/reservations/:reservation_id", deleteReservation)
 
-	dbPort := os.Getenv("DB_PORT")
-	if dbPort == "" {
-		dbPort = "8080"
-	}
-
-	router.Run(":" + dbPort)
+	router.Run(":8080")
+	defer db.Close()
 }
 
 func checkLicensePlate(c *gin.Context) {

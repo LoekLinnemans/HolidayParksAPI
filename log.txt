@@ -30,3 +30,22 @@
 2024/06/07 15:24:47 Log output set to file
 2024/06/10 09:24:02 Log output set to file
 2024/06/10 09:24:02 Error setting timezone: dial tcp :0: connectex: The requested address is not valid in its context.
+2024/06/10 11:45:39 Log output set to file
+2024/06/10 11:45:39 Error setting timezone: dial tcp :0: connectex: The requested address is not valid in its context.
+2024/06/10 11:49:01 Log output set to file
+2024/06/10 11:49:22 Error setting timezone: dial tcp 4.209.219.116:8080: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+2024/06/10 11:49:26 Log output set to file
+2024/06/10 11:49:48 Error setting timezone: dial tcp 4.209.219.116:8080: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+2024/06/10 11:52:29 Log output set to file
+2024/06/10 11:52:50 Error setting timezone: dial tcp 4.209.219.116:8080: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+2024/06/10 11:56:43 Log output set to file
+2024/06/10 11:57:04 Error setting timezone: dial tcp 4.209.219.116:8080: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond.
+2024/06/10 12:01:51 Log output set to file
+2024/06/10 12:01:52 Error setting timezone: Error 1102 (42000): Incorrect database name 'holidayparks '
+2024/06/10 12:03:34 Log output set to file
+2024/06/10 12:03:34 Error setting timezone: Error 1102 (42000): Incorrect database name 'holidayparks '
+2024/06/10 12:04:22 Log output set to file
+2024/06/10 12:04:23 Error setting timezone: Error 1102 (42000): Incorrect database name 'reservations '
+2024/06/10 12:04:45 Log output set to file
+2024/06/10 12:04:46 Error setting timezone: Error 1298 (HY000): Unknown or incorrect time zone: 'Europe/Amsterdam'
+2024/06/10 12:23:58 Log output set to file
