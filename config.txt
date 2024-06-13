@@ -1,0 +1,7 @@
+username:dbadmin
+password:7KmNlp.s
+connectionmethod:tcp
+ip:holidayparksmdb.mysql.database.azure.com
+port:8080
+databaseName:holidayparksdb
+

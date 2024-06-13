@@ -13,11 +13,11 @@ import (
 var db *sql.DB
 
 func initDatabase() {
-	DbServername := "holidayparksmdb.mysql.database.azure.com" //os.Getenv("DB_SERVERNAME")
-	dbUsername := "dbadmin"                                    //os.Getenv("DB_USERNAME")
-	dbPassword := "7KmNlp.s"                                   //os.Getenv("DB_PASSWORD")
-	dbName := "holidayparks"                                   //os.Getenv("DB_NAME")
-	dbPort := "3306"                                           //os.Getenv("DB_PORT")
+	DbServername := os.Getenv("DB_SERVERNAME")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
 
 	if DbServername == "" || dbUsername == "" || dbPassword == "" || dbName == "" || dbPort == "" {
 		log.Fatal("One or more environment variables are not set correctly")
@@ -38,13 +38,13 @@ func initDatabase() {
 }
 
 type reservation struct {
-	Reservation_id  int    `json:"reservation_id"`
-	FirstName       string `json:"firstName" binding:"required"`
-	LastName        string `json:"lastName" binding:"required"`
-	PhoneNumber     string `json:"phoneNumber" binding:"required"`
-	LicensePlate    string `json:"licensePlate" binding:"required"`
-	DateOfDeparture string `json:"dateOfDeparture" binding:"required"`
-	DateOfArrival   string `json:"dateOfArrival" binding:"required"`
+	ReservationID int    `json:"reservation_id"`
+	Name          string `json:"name" binding:"required"`
+	Surname       string `json:"surname" binding:"required"`
+	Phone         string `json:"phone" binding:"required"`
+	LicensePlate  string `json:"license_plate" binding:"required"`
+	CheckOutDate  string `json:"check_out_date" binding:"required"`
+	CheckInDate   string `json:"check_in_date" binding:"required"`
 }
 
 func main() {
@@ -52,10 +52,11 @@ func main() {
 	log.Printf("Log output set to stdout")
 
 	initDatabase()
+	log.Printf("database initialized")
 
 	router := gin.Default()
 
-	router.GET("/reservations/licensePlate/:licensePlate", checkLicensePlate)
+	router.GET("/reservations/licensePlate/:license_plate", checkLicensePlate)
 	router.POST("/reservation", createReservation)
 	router.PATCH("/reservations/:reservation_id", updateReservation)
 	router.DELETE("/reservations/:reservation_id", deleteReservation)
@@ -65,10 +66,10 @@ func main() {
 }
 
 func checkLicensePlate(c *gin.Context) {
-	licensePlate := c.Param("licensePlate")
+	licensePlate := c.Param("license_plate")
 	var exists bool
 
-	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE licensePlate = ?)", licensePlate).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE license_plate = ?)", licensePlate).Scan(&exists)
 	if err != nil {
 		log.Printf("Error checking license plate: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error checking license plate"})
@@ -98,11 +99,11 @@ func createReservation(c *gin.Context) {
 	}
 
 	insertQuery := `
-	INSERT INTO reservations (firstName, lastName, phoneNumber, licensePlate, dateOfDeparture, dateOfArrival)
+	INSERT INTO reservations (name, surname, phone, license_plate, check_out_date, check_in_date)
 	VALUES (?, ?, ?, ?, ?, ?)
 	`
 
-	result, err := db.Exec(insertQuery, newReservation.FirstName, newReservation.LastName, newReservation.PhoneNumber, newReservation.LicensePlate, newReservation.DateOfDeparture, newReservation.DateOfArrival)
+	result, err := db.Exec(insertQuery, newReservation.Name, newReservation.Surname, newReservation.Phone, newReservation.LicensePlate, newReservation.CheckOutDate, newReservation.CheckInDate)
 	if err != nil {
 		log.Printf("Error inserting reservation: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error inserting reservation"})
@@ -116,13 +117,13 @@ func createReservation(c *gin.Context) {
 		return
 	}
 
-	newReservation.Reservation_id = int(id)
+	newReservation.ReservationID = int(id)
 	c.JSON(http.StatusCreated, newReservation)
 }
 
 func reservationExists(licensePlate string) (bool, error) {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE licensePlate = ?)", licensePlate).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM reservations WHERE license_plate = ?)", licensePlate).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -141,11 +142,11 @@ func updateReservation(c *gin.Context) {
 
 	updateQuery := `
 	UPDATE reservations
-	SET firstName = ?, lastName = ?, phoneNumber = ?, licensePlate = ?, dateOfDeparture = ?, dateOfArrival = ?
+	SET name = ?, surname = ?, phone = ?, license_plate = ?, check_out_date = ?, check_in_date = ?
 	WHERE reservation_id = ?
 	`
 
-	_, err := db.Exec(updateQuery, updatedReservation.FirstName, updatedReservation.LastName, updatedReservation.PhoneNumber, updatedReservation.LicensePlate, updatedReservation.DateOfDeparture, updatedReservation.DateOfArrival, id)
+	_, err := db.Exec(updateQuery, updatedReservation.Name, updatedReservation.Surname, updatedReservation.Phone, updatedReservation.LicensePlate, updatedReservation.CheckOutDate, updatedReservation.CheckInDate, id)
 	if err != nil {
 		log.Printf("Error updating reservation: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating reservation"})
